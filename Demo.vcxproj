@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\democode\cadUI.c" />
     <ClCompile Include="..\democode\demo.c" />
     <ClCompile Include="..\libgraphics\exceptio.c" />
     <ClCompile Include="..\libgraphics\genlib.c" />
