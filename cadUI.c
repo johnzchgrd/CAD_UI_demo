@@ -1,34 +1,10 @@
-#include "graphics.h"
-#include "extgraph.h"
-#include "genlib.h"
-#include "simpio.h"
-#include "conio.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
-
-#include <windows.h>
-#include <olectl.h>
-#include <mmsystem.h>
-#include <wingdi.h>
-#include <ole2.h>
-#include <ocidl.h>
-#include <winuser.h>
-
-#include "imgui.h"
+#include"cadUI.h"
 //#define _CONSOLE //是否出现调试控制台
 
 /***** 本文件全局变量 *******/
-static double winwidth, winheight;   // 窗口尺寸
+
 static char * selectedLabel = NULL;//保存上次选择的标签
 
-/***** 函数声明 *******/
-// 清屏函数，provided in libgraphics
-void DisplayClear(void);
-//显示左侧工具栏函数
-void drawtoolbar(void);
-// 显示当前布局函数
-void display(void);
 
 // 用户的键盘事件响应函数
 void KeyboardEventProcess(int key, int event)
@@ -73,9 +49,9 @@ void Main()
 /***** 函数定义 *******/
 /*
 函数原型：void drawMenu(void)
-功能描述；
-参数描述：
-返回值描述：
+功能描述：画出菜单栏，并对用户的选择进行处理
+参数描述：void
+返回值描述：void
 重要局部变量定义：
 重要局部变量用途描述：
 函数算法描述：
@@ -115,12 +91,12 @@ void drawMenu()
 	double y = winheight;
 	double h = fH * 1.5; // 控件高度，高度相同
 	double w = TextStringWidth(menuListHelp[0]) * 2; // 选项卡宽度
-	double wlist = TextStringWidth(menuListTool[3])*2;//列表宽度
+	double wlist = TextStringWidth(menuListTool[3])*2.5;//列表宽度
 	//double xindent = winheight / 20; // 缩进
 	int    selection;
 	x += w;//防止挡住工具条造成重叠，若能实现填充菜单项背景功能，可将此语句删除
 
-	//菜单实例化
+	//--菜单实例化--//
 	// File 菜单
 	selection = menuList(GenUIID(0), x, y - h, w, wlist, h, menuListFile, sizeof(menuListFile) / sizeof(menuListFile[0]),0);
 	if (selection > 0)	selectedLabel = menuListFile[selection];
@@ -146,14 +122,19 @@ void drawMenu()
 
 	// Help 菜单
 	selection = menuList(GenUIID(0), x + 5 * w, y - h, w, wlist, h, menuListHelp, sizeof(menuListHelp) / sizeof(menuListHelp[0]), 0);
-	if (selection > 0) selectedLabel = menuListHelp[selection];
+	if (selection > 0) {
+		selectedLabel = menuListHelp[selection];
+		switch (selection) {
+		case 1://显示帮助界面
+			WinExec("notepad ./readme.txt", SW_SHOW);
+			break;
+		case 2://显示关于界面，需要更新
+			MessageBox(NULL, "此程序遵循GNU GENERAL PUBLIC LICENSE\n参考http://www.gnu.org/licenses/gpl-3.0.html\n开发人员：xxx | xxx | xxx\n\n激活状态：60天试用（为什么?我也不知道）", "关于本程序", MB_OK | MB_ICONINFORMATION);
+			break;
+		default:break;
+		}
+	}
 
-	
-	//在左下角显示最近选择的菜单项
-	SetPenColor("black");
-	drawLabel(0.1, 0.1, "最近选项:");
-	SetPenColor("Red");
-	drawLabel(0.1+ TextStringWidth("最近选项:"),0.1, selectedLabel);
 	
 }
 
@@ -166,7 +147,7 @@ void drawMenu()
 重要局部变量用途描述：选择了当前工具选项卡中第几个工具项
 函数算法描述：调用menuList函数，逐一实例化工具选项卡，绘制方向设定为向下
 */
-void drawtoolbar() {
+void drawtoolbar(void) {
 	int selection;
 	double x, w, y, h, wlist,a,b;
 	double fH = GetFontHeight();
@@ -195,31 +176,59 @@ void drawtoolbar() {
 	y = winheight;
 	h = fH * 3;
 	w = TextStringWidth(toolbarChoose[0])*1.5;
-	a = winwidth / 15;
-	b = winheight / 8 * 7;
 	
 	//工具条实例化
 	selection = menuList(GenUIID(0), x , y - 2 * h, w, w, h, toolbarChoose, sizeof(toolbarChoose) / sizeof(toolbarChoose[0]),1);
 	if (selection > 0) selectedLabel = toolbarChoose[selection];
 
 	selection = menuList(GenUIID(0), x, y - 3 * h, w, w, h, toolbarDot, sizeof(toolbarDot) / sizeof(toolbarDot[0]), 1);
-	if (selection > 0) selectedLabel = toolbarDot[selection];
+	if (selection > 0) selectedLabel = toolbarDot[0];
 
 	selection = menuList(GenUIID(0), x, y - 4 * h, w, w, h, toolbarCircle, sizeof(toolbarCircle) / sizeof(toolbarCircle[0]), 1);
-	if (selection > 0) selectedLabel = toolbarCircle[selection];
+	if (selection > 0) selectedLabel = toolbarCircle[0];
 
 	selection = menuList(GenUIID(0), x, y - 5 * h, w, w, h, toolbarLine, sizeof(toolbarLine) / sizeof(toolbarLine[0]), 1);
 	if (selection > 0) selectedLabel = toolbarLine[selection];
 
 	selection = menuList(GenUIID(0), x, y - 6 * h, w, w, h, toolbarText, sizeof(toolbarText) / sizeof(toolbarText[0]), 1);
-	if (selection > 0) selectedLabel = toolbarText[selection];
+	if (selection > 0) selectedLabel = toolbarText[0];
 
 	selection = menuList(GenUIID(0), x, y - 7 * h, w, w, h, toolbarMark, sizeof(toolbarMark) / sizeof(toolbarMark[0]), 1);
-	if (selection > 0) selectedLabel = toolbarMark[selection];
+	if (selection > 0) selectedLabel = toolbarMark[0];
 
 
 }
 
+void showMenuState(void) {
+	//无法显示无子菜单的工具选项卡
+	//在左下角显示最近选择的菜单项
+	SetPenColor("black");
+	drawLabel(0.1, 0.1, "最近选项：");
+	SetPenColor("Red");
+	drawLabel(0.1 + TextStringWidth("最近选项："), 0.1, selectedLabel);
+}
+
+
+// 按钮演示程序
+void drawButtons(void)
+{
+	double fH = GetFontHeight();
+	double h = fH * 2;  // 控件高度
+	double x = winwidth / 2;
+	double y = winheight / 2 - h;
+	double w = TextStringWidth("退出") * 2; // 控件宽度
+
+	if (button(GenUIID(0), x, y, w, h, "退出")) {
+		exit(-1);
+	}
+
+}
+
+//void drawLOGO(void) {
+//	char* logo[] = "CAD";
+//	SetPenColor("Red");
+//	drawLabel(0, winheight - GetFontHeight()*1.5, logo);
+//}
 /*
 函数原型：void display(void)
 功能描述:显示
@@ -229,11 +238,14 @@ void drawtoolbar() {
 重要局部变量用途描述：
 函数算法描述：
 */
-void display()
+void display(void)
 {
 	// 清屏
 	DisplayClear();
 	// 绘制和处理菜单
+	//drawLOGO();
 	drawMenu();
 	drawtoolbar();
+	showMenuState();
+	drawButtons();
 }
