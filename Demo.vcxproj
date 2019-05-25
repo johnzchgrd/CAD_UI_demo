@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\democode\cadUI.c" />
+    <ClCompile Include="..\democode\button.c" />
     <ClCompile Include="..\democode\demo.c" />
     <ClCompile Include="..\libgraphics\exceptio.c" />
     <ClCompile Include="..\libgraphics\genlib.c" />
@@ -22,6 +22,7 @@
     <ClCompile Include="..\simpleGUI\imgui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\democode\cadUI.h" />
     <ClInclude Include="..\libgraphics\exception.h" />
     <ClInclude Include="..\libgraphics\extgraph.h" />
     <ClInclude Include="..\libgraphics\gcalloc.h" />

@@ -37,7 +37,7 @@
     <ClCompile Include="..\democode\demo.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\democode\cadUI.c">
+    <ClCompile Include="..\democode\button.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,6 +68,9 @@
     </ClInclude>
     <ClInclude Include="..\simpleGUI\imgui.h">
       <Filter>simpleGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\democode\cadUI.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
