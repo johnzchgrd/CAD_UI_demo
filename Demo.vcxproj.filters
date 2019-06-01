@@ -37,9 +37,6 @@
     <ClCompile Include="..\democode\demo.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\democode\button.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libgraphics\exception.h">
