@@ -4,7 +4,7 @@
 /***** 本文件全局变量 *******/
 
 static char * selectedLabel = NULL;//保存上次选择的标签
-
+static char * customeFONT[20];
 
 // 用户的键盘事件响应函数
 void KeyboardEventProcess(int key, int event)
@@ -25,7 +25,7 @@ void MouseEventProcess(int x, int y, int button, int event)
 void Main()
 {
 	// 初始化窗口和图形系统
-	SetWindowTitle("CAD UI Demo");
+	SetWindowTitle("CAD（K组）");
 	//SetWindowSize(10, 10); // 单位 - 英寸
 	//SetWindowSize(20, 10);
 	//SetWindowSize(10, 20);  // 如果屏幕尺寸不够，则按比例缩小
@@ -34,7 +34,7 @@ void Main()
 	// 获得窗口尺寸
 	winwidth = GetWindowWidth();
 	winheight = GetWindowHeight();
-
+	
 	// 注册时间响应函数
 	registerKeyboardEvent(KeyboardEventProcess);// 键盘
 	registerMouseEvent(MouseEventProcess);      // 鼠标
@@ -69,8 +69,9 @@ void drawMenu()
 		"撤销上一步",
 		"颜色   >",
 		"线条   >" ,
-		"填充   >" };
+		"填充   >"};
 	static char * menuListDraw[] = { "绘图",
+		"基础图形 >",
 		"函数",
 		"显示网格" };
 	static char * menuListMeasure[] = { "度量",
@@ -78,13 +79,19 @@ void drawMenu()
 		"面积",
 		"取点" };
 	static char * menuListWindow[] = { "窗口",
-		"切换显示模式",//切换打开的文件，分屏同时显示，文件名自动替换
+		"切换显示模式",//切换打开的文件，分屏同时显示，文件名自动替换等，待实现
 		"窗口1",
 		"窗口2",
 		"..."};
 	static char * menuListHelp[] = { "帮助",
-		"帮助信息  | Ctrl-H",
+		"帮助信息 | Ctrl-H",
 		"关于本程序" };
+	//二级菜单定义
+	static char * menuListTool_color[] = {"",//记得换成颜色填充
+	"红色",
+	"黄色",
+	"蓝色" ,
+	"绿色" };
 
 	double fH = GetFontHeight();
 	double x = 0; //fH/8;
@@ -93,42 +100,54 @@ void drawMenu()
 	double w = TextStringWidth(menuListHelp[0]) * 2; // 选项卡宽度
 	double wlist = TextStringWidth(menuListTool[3])*2.5;//列表宽度
 	//double xindent = winheight / 20; // 缩进
-	int    selection;
+	int  selection,selection_2nd;//保存选中了哪一项
 	x += w;//防止挡住工具条造成重叠，若能实现填充菜单项背景功能，可将此语句删除
-
+	//设置菜单颜色
+	setMenuColors("light gray", "black", "dark gray", "black", 1);
+	SetFont(customeFONT);
 	//--菜单实例化--//
 	// File 菜单
-	selection = menuList(GenUIID(0), x, y - h, w, wlist, h, menuListFile, sizeof(menuListFile) / sizeof(menuListFile[0]),0);
+	selection = menuList(GenUIID(0), x, y - h, w, wlist, h, menuListFile, sizeof(menuListFile) / sizeof(menuListFile[0]),0,0);
 	if (selection > 0)	selectedLabel = menuListFile[selection];
-	//退出
-	if (selection == 5)
-		exit(-1); // 
+	switch (selection) {
+	case 5:ExitornotBox(); break;
+		default:break;
+	}
 	
 	// Tool 菜单
-	selection = menuList(GenUIID(0), x + w, y - h, w, wlist, h, menuListTool, sizeof(menuListTool) / sizeof(menuListTool[0]), 0);
+	selection = menuList(GenUIID(0), x + w, y - h, w, wlist, h, menuListTool, sizeof(menuListTool) / sizeof(menuListTool[0]), 0, 0);
 	if (selection > 0) selectedLabel = menuListTool[selection];
+	switch (selection) {
+		case 1:break;
+		case 2:
+			selection_2nd = menuList(GenUIID(0), x + w, y - selection * h - h, w, wlist, h, menuListTool_color, sizeof(menuListTool_color) / sizeof(menuListTool_color[0]), 1, 0);
+			break;
+		case 3:break;
+		case 4:break;
+		default:break;
+	}
 
 	//Draw 菜单
-	selection = menuList(GenUIID(0), x+2*w, y - h, w, wlist, h, menuListDraw, sizeof(menuListDraw) / sizeof(menuListDraw[0]), 0);
+	selection = menuList(GenUIID(0), x+2*w, y - h, w, wlist, h, menuListDraw, sizeof(menuListDraw) / sizeof(menuListDraw[0]), 0, 0);
 	if (selection > 0) selectedLabel = menuListDraw[selection];
 
 	//Measure 菜单
-	selection = menuList(GenUIID(0), x+3*w, y - h, w, wlist, h, menuListMeasure, sizeof(menuListMeasure) / sizeof(menuListMeasure[0]), 0);
+	selection = menuList(GenUIID(0), x+3*w, y - h, w, wlist, h, menuListMeasure, sizeof(menuListMeasure) / sizeof(menuListMeasure[0]), 0, 0);
 	if (selection > 0) selectedLabel = menuListMeasure[selection];
 
 	//Window菜单
-	selection = menuList(GenUIID(0), x+4*w, y - h, w, wlist, h, menuListWindow, sizeof(menuListWindow) / sizeof(menuListWindow[0]), 0);
+	selection = menuList(GenUIID(0), x+4*w, y - h, w, wlist, h, menuListWindow, sizeof(menuListWindow) / sizeof(menuListWindow[0]), 0, 0);
 	if (selection > 0) selectedLabel = menuListWindow[selection];
 
 	// Help 菜单
-	selection = menuList(GenUIID(0), x + 5 * w, y - h, w, wlist, h, menuListHelp, sizeof(menuListHelp) / sizeof(menuListHelp[0]), 0);
+	selection = menuList(GenUIID(0), x + 5 * w, y - h, w, wlist, h, menuListHelp, sizeof(menuListHelp) / sizeof(menuListHelp[0]), 0, 0);
 	if (selection > 0) {
 		selectedLabel = menuListHelp[selection];
 		switch (selection) {
 		case 1://显示帮助界面
 			WinExec("notepad ./readme.txt", SW_SHOW);
 			break;
-		case 2://显示关于界面，需要更新
+		case 2://显示关于界面，需要更改
 			MessageBox(NULL, "此程序遵循GNU GENERAL PUBLIC LICENSE\n参考http://www.gnu.org/licenses/gpl-3.0.html\n开发人员：xxx | xxx | xxx\n\n激活状态：60天试用（为什么?我也不知道）", "关于本程序", MB_OK | MB_ICONINFORMATION);
 			break;
 		default:break;
@@ -178,22 +197,22 @@ void drawtoolbar(void) {
 	w = TextStringWidth(toolbarChoose[0])*1.5;
 	
 	//工具条实例化
-	selection = menuList(GenUIID(0), x , y - 2 * h, w, w, h, toolbarChoose, sizeof(toolbarChoose) / sizeof(toolbarChoose[0]),1);
+	selection = menuList(GenUIID(0), x , y - 2 * h, w, w, h, toolbarChoose, sizeof(toolbarChoose) / sizeof(toolbarChoose[0]), 0, 1);
 	if (selection > 0) selectedLabel = toolbarChoose[selection];
 
-	selection = menuList(GenUIID(0), x, y - 3 * h, w, w, h, toolbarDot, sizeof(toolbarDot) / sizeof(toolbarDot[0]), 1);
+	selection = menuList(GenUIID(0), x, y - 3 * h, w, w, h, toolbarDot, sizeof(toolbarDot) / sizeof(toolbarDot[0]), 0, 1);
 	if (selection > 0) selectedLabel = toolbarDot[0];
 
-	selection = menuList(GenUIID(0), x, y - 4 * h, w, w, h, toolbarCircle, sizeof(toolbarCircle) / sizeof(toolbarCircle[0]), 1);
+	selection = menuList(GenUIID(0), x, y - 4 * h, w, w, h, toolbarCircle, sizeof(toolbarCircle) / sizeof(toolbarCircle[0]), 0, 1);
 	if (selection > 0) selectedLabel = toolbarCircle[0];
 
-	selection = menuList(GenUIID(0), x, y - 5 * h, w, w, h, toolbarLine, sizeof(toolbarLine) / sizeof(toolbarLine[0]), 1);
+	selection = menuList(GenUIID(0), x, y - 5 * h, w, w, h, toolbarLine, sizeof(toolbarLine) / sizeof(toolbarLine[0]), 0, 1);
 	if (selection > 0) selectedLabel = toolbarLine[selection];
 
-	selection = menuList(GenUIID(0), x, y - 6 * h, w, w, h, toolbarText, sizeof(toolbarText) / sizeof(toolbarText[0]), 1);
+	selection = menuList(GenUIID(0), x, y - 6 * h, w, w, h, toolbarText, sizeof(toolbarText) / sizeof(toolbarText[0]), 0, 1);
 	if (selection > 0) selectedLabel = toolbarText[0];
 
-	selection = menuList(GenUIID(0), x, y - 7 * h, w, w, h, toolbarMark, sizeof(toolbarMark) / sizeof(toolbarMark[0]), 1);
+	selection = menuList(GenUIID(0), x, y - 7 * h, w, w, h, toolbarMark, sizeof(toolbarMark) / sizeof(toolbarMark[0]), 0, 1);
 	if (selection > 0) selectedLabel = toolbarMark[0];
 
 
@@ -214,21 +233,40 @@ void drawButtons(void)
 {
 	double fH = GetFontHeight();
 	double h = fH * 2;  // 控件高度
-	double x = winwidth / 2;
-	double y = winheight / 2 - h;
+	double x = 0.1;
+	double y = 0.5;
 	double w = TextStringWidth("退出") * 2; // 控件宽度
 
 	if (button(GenUIID(0), x, y, w, h, "退出")) {
-		exit(-1);
+		ExitornotBox();
+	}
+	if (button(GenUIID(0), x, y + 1.5*h, TextStringWidth("暂停5s") * 2, h, "暂停5s")) {
+		Pause(5);
 	}
 
 }
+/*
+函数原型：void ExitornotBox(void)
+功能描述:在主动退出程序时弹框确认
+参数描述：无
+返回值描述：无
+重要局部变量定义：无
+重要局部变量用途描述：无
+函数算法描述：简单调用win32 api
+*/
+void ExitornotBox(void) {
+	switch (MessageBox(NULL, "是否退出CAD？", "提示", MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON1)) {
+	case IDCANCEL:break;
+	case IDOK:ExitGraphics(); break;
+	}
+}
 
-//void drawLOGO(void) {
-//	char* logo[] = "CAD";
-//	SetPenColor("Red");
-//	drawLabel(0, winheight - GetFontHeight()*1.5, logo);
-//}
+void drawCanvas(void) {
+	//设置菜单栏颜色
+	setCanvasColors("light gray", "black", "gray", "red", 1);
+	drawRectangle(0.9, 0.5, GetWindowWidth() - 1.9, GetWindowHeight() - 0.9, 1);
+}
+
 /*
 函数原型：void display(void)
 功能描述:显示
@@ -244,8 +282,13 @@ void display(void)
 	DisplayClear();
 	// 绘制和处理菜单
 	//drawLOGO();
-	drawMenu();
+	//最先绘制画布
+	drawCanvas();
+	//设置菜单栏颜色
 	drawtoolbar();
+	setMenuColors("light gray", "black", "gray", "black", 1);
+	drawMenu();
 	showMenuState();
 	drawButtons();
+	
 }
